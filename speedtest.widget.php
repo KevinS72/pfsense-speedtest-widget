@@ -30,7 +30,9 @@
 	"interface":{"internalIp":"123.123.123.123","name":"vmx0","macAddr":"0A:1B:2C:3D:4E:5F","isVpn":false,"externalIp":"123.123.123.123"},
 	"server":{"id":13883,"host":"speedtest.trined.nl","port":8080,"name":"TriNed B.V.","location":"Sint-Oedenrode","country":"Netherlands","ip":"45.145.108.44"},
 	"result":{"id":"12345678-abcd-1234-abcd-123456789abc","url":"https://www.speedtest.net/result/c/12345678-abcd-1234-abcd-123456789abc","persisted":true}}
-	
+
+  New:	--json {"download": 231872650.97135112, "upload": 5540228.640909488, "ping": 25.052, "server": {"url": "http://test.nextlevel.net:8080/speedtest/upload.php", "lat": "37.3541", "lon": "-121.9552", "name": "Santa Clara, CA", "country": "United States", "cc": "US", "sponsor": "Next Level Infrastructure", "id": "25606", "host": "test.nextlevel.net:8080", "d": 143.47856656623335, "latency": 25.052}, "timestamp": "2024-03-01T04:12:57.800204Z", "bytes_sent": 7258112, "bytes_received": 290060371, "share": null, "client": {"ip": "73.90.27.220", "lat": "38.5569", "lon": "-121.3627", "isp": "Comcast Cable", "isprating": "3.7", "rating": "0", "ispdlavg": "0", "ispulavg": "0", "loggedin": "0", "country": "US"}}
+  
 INSTALL
 -------
 Goto https://www.speedtest.net/apps/cli
@@ -65,7 +67,7 @@ Diagnotics-->Command Prompt-->Execute Shell Command:
 require_once("guiconfig.inc");
 
 if ($_REQUEST['ajax']) { 
-    $results = shell_exec("speedtest -f json --accept-license --accept-gdpr");
+    $results = shell_exec("speedtest --json");
     if(($results !== null) && (json_decode($results) !== null)) {
         $config['widgets']['speedtest_result'] = $results;
         write_config("Save speedtest results");
@@ -109,12 +111,12 @@ function update_result(results) {
     if(results != null) {
     	var date = new Date(results.timestamp);
     	$("#speedtest-ts").html(date);
-    	$("#speedtest-ping").html(results.ping.latency.toFixed(2) + "<small> ms</small>");
-    	$("#speedtest-download").html((results.download.bandwidth / 1000000 * 8).toFixed(2) + "<small> Mbps </small><h5>(" + results.download.latency.iqm + "<small> ms</small>)</h5>");
-    	$("#speedtest-upload").html((results.upload.bandwidth / 1000000 * 8).toFixed(2) + "<small> Mbps </small><h5>(" + results.upload.latency.iqm + "<small> ms</small>)</h5>");
-    	$("#speedtest-isp").html(results.isp + "<small> (" + results.interface.externalIp + ")</small>");
-    	$("#speedtest-host").html(results.server.name + " " + results.server.location + " " + results.server.country + "<small> (" + results.server.ip + ")</small>");
-		$("#Ookla").attr("href", results.result.url);
+    	$("#speedtest-ping").html(results.ping.toFixed(2) + "<small> ms</small>");
+    	$("#speedtest-download").html((results.download / 1000000).toFixed(2) + "<small> Mbps</small>");
+    	$("#speedtest-upload").html((results.upload / 1000000).toFixed(2) + "<small> Mbps</small>");
+    	$("#speedtest-isp").html(results.client.isp + "<small> (" + results.client.ip + ")</small>");
+    	$("#speedtest-host").html(results.server.sponsor + " (" + results.server.name + ") " + "<small>[" + results.server.d.toFixed(2) + " km]  " + results.server.latency.toFixed(2) + " ms</small><br><small>(" + results.server.host + ")</small>");
+		$("#Ookla").attr("href", results.server.url);
 		$("#Ookla").show();
     } else {
     	$("#speedtest-ts").html("Speedtest failed");
